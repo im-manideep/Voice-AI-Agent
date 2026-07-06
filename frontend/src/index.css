@@ -1,0 +1,138 @@
+@import '@fontsource/instrument-serif';
+@import '@fontsource/instrument-serif/400-italic.css';
+@import '@fontsource-variable/space-grotesk';
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ */
+/* Aurora dark — design tokens                                         */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-abyss: #07080f; /* page background: deep indigo-black */
+  --color-ink: #f4f4f5; /* primary text */
+  --color-mist: #71717a; /* muted text */
+  --color-aurora: #2dd4bf; /* teal accent */
+  --color-nebula: #8b7cf6; /* violet accent */
+  --color-ember: #fb7185; /* rose, for misses only */
+
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-abyss);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ------------------------------------------------------------------ */
+/* Liquid-glass component language                                     */
+/* ------------------------------------------------------------------ */
+@utility glass {
+  background: rgb(255 255 255 / 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+}
+
+@utility pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  background: rgb(255 255 255 / 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  color: var(--color-ink);
+  white-space: nowrap;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+  cursor: pointer;
+}
+.pill:hover {
+  border-color: rgb(45 212 191 / 0.6);
+  background: rgb(45 212 191 / 0.1);
+}
+
+@utility pill-solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  background: var(--color-ink);
+  color: var(--color-abyss);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+  cursor: pointer;
+}
+.pill-solid:hover {
+  background: var(--color-aurora);
+}
+
+/* Blinking caret for the typewriter */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  background: var(--color-ink);
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+}
+
+/* Static orb fallback (reduced motion / no WebGL) */
+@keyframes orb-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.static-orb {
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 38% 32%,
+    rgb(45 212 191 / 0.9),
+    rgb(139 124 246 / 0.55) 55%,
+    rgb(7 8 15 / 0) 72%
+  );
+  filter: blur(2px);
+  animation: orb-pulse 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .static-orb {
+    animation: none;
+  }
+  .caret {
+    animation: none;
+  }
+}
