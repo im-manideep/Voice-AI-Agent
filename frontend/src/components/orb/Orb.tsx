@@ -2,7 +2,12 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { audioBus } from '../../lib/audio/audioBus'
-import { orbFragmentShader, orbVertexShader } from './orbShaders'
+import {
+  haloFragmentShader,
+  haloVertexShader,
+  orbFragmentShader,
+  orbVertexShader,
+} from './orbShaders'
 import type { VoiceStatus } from '../../store/voiceStore'
 
 interface Look {
@@ -16,47 +21,51 @@ interface Look {
 }
 
 // Distinct personality per voice state — colors stay in the aurora family.
+// Displacement is kept low: the orb should ripple, not turn into a blob.
 const LOOKS: Record<VoiceStatus, Look> = {
   idle: {
     colorA: new THREE.Color('#2dd4bf'),
     colorB: new THREE.Color('#8b7cf6'),
-    displace: 0.1,
+    displace: 0.05,
     gain: 0.3,
-    speed: 0.16,
-    noiseScale: 1.6,
-    brightness: 0.55,
+    speed: 0.14,
+    noiseScale: 1.9,
+    brightness: 0.8,
   },
   listening: {
-    colorA: new THREE.Color('#eafffb'), // cool white-teal — their voice
+    colorA: new THREE.Color('#8ffff0'), // cool white-teal — their voice
     colorB: new THREE.Color('#2dd4bf'),
-    displace: 0.13,
-    gain: 0.95,
-    speed: 0.4,
-    noiseScale: 2.2,
-    brightness: 0.95,
+    displace: 0.08,
+    gain: 0.62,
+    speed: 0.42,
+    noiseScale: 2.5,
+    brightness: 1.2,
   },
   thinking: {
-    colorA: new THREE.Color('#8b7cf6'),
-    colorB: new THREE.Color('#3d3282'),
-    displace: 0.07,
-    gain: 0.2,
-    speed: 0.24,
-    noiseScale: 1.3,
-    brightness: 0.65,
+    colorA: new THREE.Color('#a78bfa'),
+    colorB: new THREE.Color('#6d5bd0'),
+    displace: 0.04,
+    gain: 0.18,
+    speed: 0.22,
+    noiseScale: 1.5,
+    brightness: 0.9,
   },
   speaking: {
-    colorA: new THREE.Color('#b9a5ff'), // warmer violet — the coach's voice
+    colorA: new THREE.Color('#c7b7ff'), // warmer violet — the coach's voice
     colorB: new THREE.Color('#2dd4bf'),
-    displace: 0.12,
-    gain: 0.8,
-    speed: 0.34,
-    noiseScale: 1.9,
-    brightness: 1.0,
+    displace: 0.07,
+    gain: 0.52,
+    speed: 0.32,
+    noiseScale: 2.2,
+    brightness: 1.3,
   },
 }
 
+const DEEP = new THREE.Color('#14102a') // the dark glassy body
+
 export function Orb() {
   const material = useRef<THREE.ShaderMaterial>(null)
+  const halo = useRef<THREE.ShaderMaterial>(null)
   const time = useRef(0)
   const speed = useRef(LOOKS.idle.speed)
 
@@ -70,6 +79,16 @@ export function Orb() {
       uBrightness: { value: LOOKS.idle.brightness },
       uColorA: { value: LOOKS.idle.colorA.clone() },
       uColorB: { value: LOOKS.idle.colorB.clone() },
+      uColorDeep: { value: DEEP.clone() },
+    }),
+    [],
+  )
+
+  const haloUniforms = useMemo(
+    () => ({
+      uColorA: { value: LOOKS.idle.colorA.clone() },
+      uColorB: { value: LOOKS.idle.colorB.clone() },
+      uStrength: { value: 0.35 },
     }),
     [],
   )
@@ -96,17 +115,41 @@ export function Orb() {
     const target =
       audioBus.mode === 'listening' || audioBus.mode === 'speaking' ? audioBus.level : breathing
     u.uLevel.value += (target - u.uLevel.value) * 0.25
+
+    if (halo.current) {
+      const h = halo.current.uniforms
+      ;(h.uColorA.value as THREE.Color).lerp(look.colorA, k)
+      ;(h.uColorB.value as THREE.Color).lerp(look.colorB, k)
+      h.uStrength.value +=
+        (look.brightness * 0.28 + u.uLevel.value * 0.3 - h.uStrength.value) * k
+    }
   })
 
   return (
-    <mesh>
-      <icosahedronGeometry args={[1, 48]} />
-      <shaderMaterial
-        ref={material}
-        vertexShader={orbVertexShader}
-        fragmentShader={orbFragmentShader}
-        uniforms={uniforms}
-      />
-    </mesh>
+    <group>
+      <mesh>
+        <icosahedronGeometry args={[1, 48]} />
+        <shaderMaterial
+          ref={material}
+          vertexShader={orbVertexShader}
+          fragmentShader={orbFragmentShader}
+          uniforms={uniforms}
+        />
+      </mesh>
+      {/* Atmospheric halo — additive glow just past the silhouette. */}
+      <mesh scale={1.22}>
+        <sphereGeometry args={[1, 48, 48]} />
+        <shaderMaterial
+          ref={halo}
+          vertexShader={haloVertexShader}
+          fragmentShader={haloFragmentShader}
+          uniforms={haloUniforms}
+          transparent
+          depthWrite={false}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
   )
 }

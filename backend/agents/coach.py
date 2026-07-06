@@ -21,6 +21,15 @@ STOP_WORDS_RE = re.compile(
     r"\b(stop|pause|quit|end (the )?session|i'?m done|that'?s enough)\b", re.IGNORECASE
 )
 
+# The student asking to be taught instead of answering. Deliberately does NOT
+# match plain "I don't know" — that is a miss; asking for help is not.
+EXPLAIN_RE = re.compile(
+    r"\b(explain|teach me|what (do|does|did) (you|that) mean|don'?t understand|"
+    r"tell me about|help me|give me a hint|hint please|i'?m confused|"
+    r"what is (that|this)|can you (repeat|rephrase))\b",
+    re.IGNORECASE,
+)
+
 DIFFICULTY_RUBRIC = {
     1: "definition recall — ask them to define or state the core concept",
     2: "mechanics — ask them to explain how it works, step by step",
@@ -47,6 +56,8 @@ Rules:
 - feedback: 2-4 short spoken sentences. Be specific: say what was right and cite the key fact they missed, taken from the passages.
 - next_question: exactly ONE question, 1-2 sentences, on the assigned topic at the assigned difficulty. Never ask two questions at once.
 - Difficulty scale: 1 = definition recall, 2 = explain the mechanics, 3 = compare and apply tradeoffs, 4 = debug a failure case, 5 = design tradeoffs and "what breaks when".
+- If the student asks you to explain, teach, or says they don't understand the question: set verdict "n/a" (asking for help is NOT a wrong answer), use feedback to explain the key idea from the passages in 3-4 spoken sentences, then re-ask a simpler version of the question.
+- If the student asks to skip or wants the next question: verdict "n/a", acknowledge in one short sentence, and move on.
 - If the student asks to stop, pause, or end the session, set said_stop to true.
 
 Reply with ONLY a JSON object, no other text, exactly these keys:
@@ -193,6 +204,51 @@ def _build_user_prompt(
         parts.append("RECENT HISTORY (avoid repeating these questions)\n" + "\n".join(lines))
 
     return "\n\n".join(parts)
+
+
+def is_explain_request(answer: str) -> bool:
+    """True when the student is asking to be taught instead of answering."""
+    return bool(EXPLAIN_RE.search(answer))
+
+
+def run_explain(kb: KB, prev: Assignment, prev_question: str, answer: str) -> CoachReply:
+    """Mini-lesson branch: the student asked for an explanation, so the
+    scheduler is NOT advanced — explain the current topic from the passages
+    and re-ask the same question."""
+    label = kb.topic_label(prev.topic)
+    passages = _passages_block(kb, prev.topic, prev_question)
+    user_prompt = (
+        "EXPLAIN TASK\n"
+        f'You asked: "{prev_question}" (topic "{label}", difficulty {prev.difficulty}).\n'
+        f'Instead of answering, the student said: "{answer.strip()}" — they want it explained.\n'
+        "Set verdict to \"n/a\" (asking for help is not a wrong answer).\n"
+        "In feedback: teach the key idea in 3-4 short spoken sentences using ONLY these passages:\n"
+        f"{passages}\n"
+        "In next_question: re-ask the same question, phrased a little more simply."
+    )
+
+    raw = complete_json(SYSTEM_PROMPT, user_prompt)
+    reply = parse_coach_json(raw, answer)
+    if reply is None:
+        raw = complete_json(
+            SYSTEM_PROMPT,
+            user_prompt + "\n\nYour previous output was not valid JSON. "
+            "Reply with ONLY the JSON object, no prose, no code fences.",
+        )
+        reply = parse_coach_json(raw, answer)
+    if reply is None:
+        # Deterministic mini-lesson: read the top passage's opening lines aloud.
+        chunks = kb.passages_for(prev.topic, query=prev_question, k=1)
+        lesson = " ".join(chunks[0].text.split(". ")[:2]) + "." if chunks else \
+            f"Let's review {label} together."
+        reply = CoachReply(
+            verdict="n/a",
+            feedback=f"Sure — quick refresher. {lesson}",
+            next_question=f"Now, in your own words: {prev_question}",
+            said_stop=bool(STOP_WORDS_RE.search(answer)),
+        )
+    reply.verdict = "n/a"  # an explain turn is never graded
+    return reply
 
 
 def fallback_reply(kb: KB, nxt: Assignment, answer: str) -> CoachReply:

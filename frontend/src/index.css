@@ -87,6 +87,31 @@ body {
   background: var(--color-aurora);
 }
 
+/* Gradient display text (the "loud." accent) */
+@utility text-aurora-gradient {
+  background: linear-gradient(100deg, #2dd4bf 10%, #8b7cf6 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Topic marquee on the landing page */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* Blinking caret for the typewriter */
 @keyframes blink {
   0%,

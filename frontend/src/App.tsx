@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { Ambience } from './components/layout/Ambience'
 import { Navbar } from './components/layout/Navbar'
 import { Hero } from './components/landing/Hero'
 import { HowItWorks } from './components/landing/HowItWorks'
@@ -8,6 +9,7 @@ import { ProgressDashboard } from './components/progress/ProgressDashboard'
 export default function App() {
   return (
     <div className="min-h-screen bg-abyss">
+      <Ambience />
       <Navbar />
       <Routes>
         <Route

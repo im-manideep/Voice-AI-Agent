@@ -45,7 +45,7 @@ export function OrbCanvas({ className = '' }: { className?: string }) {
       <CanvasErrorBoundary fallback={<StaticOrb className="h-full w-full" />}>
         <Canvas
           dpr={[1, 1.75]}
-          camera={{ position: [0, 0, 3.1], fov: 45 }}
+          camera={{ position: [0, 0, 3.6], fov: 42 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           onCreated={({ gl }) => {
             gl.domElement.addEventListener('webglcontextlost', () => setCrashed(true))
@@ -55,10 +55,10 @@ export function OrbCanvas({ className = '' }: { className?: string }) {
             <Orb />
             {thinking && (
               // Particles drifting inward while the coach thinks.
-              <Sparkles count={90} scale={3.4} size={2.2} speed={0.35} color="#8b7cf6" opacity={0.7} />
+              <Sparkles count={70} scale={3.2} size={2} speed={0.35} color="#8b7cf6" opacity={0.55} />
             )}
             <EffectComposer>
-              <Bloom mipmapBlur intensity={0.55} luminanceThreshold={0.25} luminanceSmoothing={0.3} />
+              <Bloom mipmapBlur intensity={0.5} luminanceThreshold={0.32} luminanceSmoothing={0.35} />
             </EffectComposer>
           </Suspense>
         </Canvas>

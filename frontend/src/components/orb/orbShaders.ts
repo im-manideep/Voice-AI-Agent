@@ -1,6 +1,7 @@
-// Vertex: Ashima 3D simplex noise displaces the sphere along its normals.
-// Fragment: fresnel-weighted aurora (teal <-> violet) whose brightness rides
-// the live audio level. Zero runtime deps — the noise lives in the shader.
+// Orb look: dark glassy core + bright fresnel rim (so UI text in front stays
+// readable), two octaves of simplex noise for fine organic ripples rather
+// than big lumps. Audio level feeds both displacement and rim brightness.
+// Fragment: fresnel-weighted aurora (teal <-> violet). Zero runtime deps.
 
 export const orbVertexShader = /* glsl */ `
 uniform float uTime;
@@ -64,8 +65,12 @@ float snoise(vec3 v){
 // ---------------------------------------------------------------------------
 
 void main() {
-  float n = snoise(normal * uNoiseScale + vec3(uTime * 0.6, uTime * 0.45, uTime * 0.3));
-  float amp = uDisplace + uLevel * uGain;
+  // Broad slow swell + fine fast detail. Audio adds energy to the detail.
+  float broad = snoise(normal * uNoiseScale + vec3(uTime * 0.5, uTime * 0.38, uTime * 0.26));
+  float fine  = snoise(normal * (uNoiseScale * 2.7) - vec3(uTime * 0.9, uTime * 0.7, uTime * 0.55));
+  float n = broad * 0.62 + fine * 0.38;
+
+  float amp = uDisplace + uLevel * uGain * 0.16;
   vec3 displaced = position + normal * n * amp;
 
   vDisp = n;
@@ -77,8 +82,9 @@ void main() {
 `
 
 export const orbFragmentShader = /* glsl */ `
-uniform vec3 uColorA;
-uniform vec3 uColorB;
+uniform vec3 uColorA;      // rim / highlight
+uniform vec3 uColorB;      // secondary aurora
+uniform vec3 uColorDeep;   // dark body
 uniform float uLevel;
 uniform float uBrightness;
 
@@ -87,9 +93,47 @@ varying vec3 vViewDir;
 varying float vDisp;
 
 void main() {
-  float fresnel = pow(1.0 - max(dot(normalize(vNormal), normalize(vViewDir)), 0.0), 2.2);
-  vec3 aurora = mix(uColorB, uColorA, fresnel + vDisp * 0.25);
-  float glow = uBrightness * (0.55 + fresnel * 0.9) * (1.0 + uLevel * 0.8);
-  gl_FragColor = vec4(aurora * glow, 1.0);
+  vec3 N = normalize(vNormal);
+  vec3 V = normalize(vViewDir);
+  float facing = max(dot(N, V), 0.0);
+  float fresnel = pow(1.0 - facing, 2.4);
+
+  // Dark glassy body with a hint of aurora where the surface swells.
+  vec3 body = mix(uColorDeep, uColorB, smoothstep(-0.5, 0.9, vDisp) * 0.35);
+  vec3 col = body * (0.22 + 0.18 * uLevel);
+
+  // Bright aurora rim — this is what blooms.
+  vec3 rim = mix(uColorB, uColorA, fresnel);
+  col += rim * fresnel * uBrightness * (0.9 + 1.1 * uLevel);
+
+  // Soft key light from above.
+  col += uColorA * 0.06 * smoothstep(0.15, 1.0, N.y) * facing;
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+
+// Atmospheric halo rendered on a slightly larger back-facing sphere.
+export const haloVertexShader = /* glsl */ `
+varying vec3 vNormal;
+varying vec3 vViewDir;
+void main() {
+  vNormal = normalize(normalMatrix * normal);
+  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+  vViewDir = normalize(-mvPosition.xyz);
+  gl_Position = projectionMatrix * mvPosition;
+}
+`
+
+export const haloFragmentShader = /* glsl */ `
+uniform vec3 uColorA;
+uniform vec3 uColorB;
+uniform float uStrength;
+varying vec3 vNormal;
+varying vec3 vViewDir;
+void main() {
+  float f = pow(1.0 - abs(dot(normalize(vNormal), normalize(vViewDir))), 2.0);
+  vec3 col = mix(uColorB, uColorA, 0.45);
+  gl_FragColor = vec4(col, f * uStrength);
 }
 `

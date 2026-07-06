@@ -1,6 +1,6 @@
 """Defensive-parse tests for the coach JSON contract. No live LLM."""
 
-from agents.coach import CoachReply, parse_coach_json
+from agents.coach import CoachReply, is_explain_request, parse_coach_json
 
 GOOD = '{"verdict": "correct", "feedback": "Nice.", "next_question": "What is BM25?", "said_stop": false}'
 
@@ -55,6 +55,16 @@ def test_missing_said_stop_falls_back_to_keyword_check():
 def test_stop_keyword_overrides_model_false():
     r = parse_coach_json(GOOD, answer="I want to end the session now")
     assert r.said_stop is True
+
+
+def test_explain_request_detection():
+    assert is_explain_request("no could you please explain me those topics")
+    assert is_explain_request("I don't understand the question")
+    assert is_explain_request("can you teach me this first")
+    assert is_explain_request("give me a hint please")
+    # Admitting you don't know is a MISS, not a help request.
+    assert not is_explain_request("I don't know")
+    assert not is_explain_request("chunking splits documents into passages")
 
 
 def test_nested_braces_in_prose_extracted():

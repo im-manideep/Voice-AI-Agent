@@ -126,6 +126,31 @@ def take_turn(session_id: str, req: TurnRequest,
     prev_question = session["current_question"]
     prev_turn_index = state.turn  # question number the user just answered
 
+    # "Explain that to me" branch: teach instead of grade. The scheduler does
+    # NOT advance — the same question is re-asked after the mini-lesson.
+    if req.answer and not req.force_verdict and coach.is_explain_request(req.answer):
+        reply = coach.run_explain(kb, prev, prev_question, req.answer)
+        db.add_turn(
+            conn, session_id, prev_turn_index, prev.topic, prev.difficulty, prev.revisit,
+            prev_question, req.answer, reply.verdict, reply.feedback,
+        )
+        status = "ended" if reply.said_stop else "active"
+        db.update_session(
+            conn, session_id,
+            scheduler_state=scheduler.to_dict(state),
+            assignment=session["current_assignment"],
+            question=reply.next_question,
+            status=status,
+        )
+        return TurnResponse(
+            verdict=reply.verdict,
+            feedback=reply.feedback,
+            next_question=reply.next_question,
+            said_stop=reply.said_stop,
+            assignment=_assignment_out(prev),
+            progress=_progress(state, db.get_turns(conn, session_id), status),
+        )
+
     # One-question lag: pick the next topic from results through the PREVIOUS
     # turn, then grade this answer. A miss recorded below still returns within
     # 3 questions (see tools/scheduler.py + tests).

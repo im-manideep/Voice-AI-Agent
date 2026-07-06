@@ -56,7 +56,7 @@ function HistoryItem({ h }: { h: TurnRow }) {
     <div className="glass p-4">
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className={`rounded-full border px-2.5 py-0.5 text-[11px] ${VERDICT_STYLE[verdict] ?? VERDICT_STYLE['n/a']}`}>
-          {verdict === 'incorrect' ? 'missed' : verdict}
+          {verdict === 'incorrect' ? 'missed' : verdict === 'n/a' ? 'lesson' : verdict}
         </span>
         <span className="text-[12px] text-mist">
           Q{h.turn} · level {h.difficulty}
@@ -69,6 +69,21 @@ function HistoryItem({ h }: { h: TurnRow }) {
         <p className="text-[13px] text-mist">{h.feedback}</p>
       )}
     </div>
+  )
+}
+
+function StatTile({ value, label, index }: { value: string; label: string; index: number }) {
+  const reduced = useReducedMotion()
+  return (
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.07 }}
+      className="glass px-5 py-4"
+    >
+      <p className="font-display text-4xl text-ink">{value}</p>
+      <p className="mt-1 text-[12px] uppercase tracking-[0.15em] text-mist">{label}</p>
+    </motion.div>
   )
 }
 
@@ -91,13 +106,25 @@ export function ProgressDashboard() {
 
   const seen = [...progress.topics].sort((a, b) => Number(b.seen) - Number(a.seen))
 
+  const graded = progress.history.filter((h) => h.verdict && h.verdict !== 'n/a')
+  const correct = graded.filter((h) => h.verdict === 'correct').length
+  const lessons = progress.history.filter((h) => h.verdict === 'n/a').length
+  const accuracy = graded.length ? Math.round((correct / graded.length) * 100) : 0
+
   return (
     <main className="mx-auto max-w-5xl px-5 pb-24 pt-28 sm:px-8">
-      <div className="mb-10 flex items-end justify-between">
+      <div className="mb-8 flex items-end justify-between">
         <h1 className="font-display text-5xl text-ink">Progress</h1>
         <Link to="/session" className="pill text-[14px]">
           Practice again
         </Link>
+      </div>
+
+      <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <StatTile value={String(graded.length)} label="answered" index={0} />
+        <StatTile value={String(correct)} label="correct" index={1} />
+        <StatTile value={`${accuracy}%`} label="accuracy" index={2} />
+        <StatTile value={String(lessons)} label="mini-lessons" index={3} />
       </div>
 
       <div className="mb-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -110,8 +137,10 @@ export function ProgressDashboard() {
         <>
           <h2 className="font-display mb-6 text-3xl text-ink">This session</h2>
           <div className="flex flex-col gap-3">
-            {[...progress.history].reverse().map((h) => (
-              <HistoryItem key={h.turn} h={h} />
+            {[...progress.history].reverse().map((h, i) => (
+              // Index key: explain turns share a turn number with the question
+              // they interrupted, so h.turn is not unique.
+              <HistoryItem key={i} h={h} />
             ))}
           </div>
         </>

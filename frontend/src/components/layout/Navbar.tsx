@@ -12,7 +12,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5">
+      <header className="fixed inset-x-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-abyss/85 via-abyss/40 to-transparent px-5 py-4 sm:px-8 sm:py-5">
         <Link to="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
           <span className="font-display text-[26px] tracking-tight text-ink sm:text-[30px]">
             Recall
