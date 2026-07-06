@@ -55,10 +55,10 @@ export function OrbCanvas({ className = '' }: { className?: string }) {
             <Orb />
             {thinking && (
               // Particles drifting inward while the coach thinks.
-              <Sparkles count={70} scale={3.2} size={2} speed={0.35} color="#8b7cf6" opacity={0.55} />
+              <Sparkles count={70} scale={3.2} size={2} speed={0.35} color="#6d28d9" opacity={0.55} />
             )}
             <EffectComposer>
-              <Bloom mipmapBlur intensity={0.5} luminanceThreshold={0.32} luminanceSmoothing={0.35} />
+              <Bloom mipmapBlur intensity={0.35} luminanceThreshold={0.4} luminanceSmoothing={0.35} />
             </EffectComposer>
           </Suspense>
         </Canvas>

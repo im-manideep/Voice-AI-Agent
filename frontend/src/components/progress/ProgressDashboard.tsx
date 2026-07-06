@@ -7,7 +7,7 @@ const VERDICT_STYLE: Record<string, string> = {
   correct: 'bg-aurora/15 text-aurora border-aurora/40',
   partial: 'bg-nebula/15 text-nebula border-nebula/40',
   incorrect: 'bg-ember/15 text-ember border-ember/40',
-  'n/a': 'bg-white/5 text-mist border-white/15',
+  'n/a': 'bg-black/5 text-mist border-black/15',
 }
 
 function TopicCard({ t, index }: { t: TopicProgress; index: number }) {
@@ -25,7 +25,7 @@ function TopicCard({ t, index }: { t: TopicProgress; index: number }) {
       </div>
 
       {/* Mastery bar 0-5 */}
-      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-white/8">
+      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-black/8">
         <motion.div
           initial={reduced ? false : { width: 0 }}
           animate={{ width: `${(t.mastery / 5) * 100}%` }}

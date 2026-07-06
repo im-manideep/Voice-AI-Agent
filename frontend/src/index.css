@@ -1,21 +1,22 @@
-@import '@fontsource/instrument-serif';
-@import '@fontsource/instrument-serif/400-italic.css';
-@import '@fontsource-variable/space-grotesk';
+@import './styles/fonts.css';
+@import './styles/theme.css';
 @import 'tailwindcss';
 
 /* ------------------------------------------------------------------ */
-/* Aurora dark — design tokens                                         */
+/* Design tokens — cinematic light theme                               */
+/* Background white, headlines/buttons black, secondary gray.          */
+/* Teal/violet/rose are FUNCTIONAL only (verdicts, live-voice cues).   */
 /* ------------------------------------------------------------------ */
 @theme {
-  --color-abyss: #07080f; /* page background: deep indigo-black */
-  --color-ink: #f4f4f5; /* primary text */
-  --color-mist: #71717a; /* muted text */
-  --color-aurora: #2dd4bf; /* teal accent */
-  --color-nebula: #8b7cf6; /* violet accent */
-  --color-ember: #fb7185; /* rose, for misses only */
+  --color-paper: #ffffff; /* page background */
+  --color-ink: #000000; /* headlines, logo, buttons */
+  --color-mist: #6f6f6f; /* descriptions, menu items */
+  --color-aurora: #0d9488; /* teal — correct / listening */
+  --color-nebula: #6d28d9; /* violet — partial / thinking */
+  --color-ember: #e11d48; /* rose — misses, errors */
 
   --font-display: 'Instrument Serif', Georgia, serif;
-  --font-sans: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+  --font-sans: 'Inter Variable', Inter, system-ui, sans-serif;
 }
 
 html,
@@ -24,7 +25,7 @@ body {
 }
 
 body {
-  background: var(--color-abyss);
+  background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -32,13 +33,13 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
-/* Liquid-glass component language                                     */
+/* Component language                                                  */
 /* ------------------------------------------------------------------ */
 @utility glass {
-  background: rgb(255 255 255 / 0.06);
+  background: rgb(0 0 0 / 0.03);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(0 0 0 / 0.08);
   border-radius: 1rem;
 }
 
@@ -49,22 +50,19 @@ body {
   gap: 0.5rem;
   border-radius: 9999px;
   padding: 0.5rem 1.25rem;
-  background: rgb(255 255 255 / 0.06);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgb(255 255 255 / 0.12);
+  background: var(--color-paper);
+  border: 1px solid rgb(0 0 0 / 0.15);
   color: var(--color-ink);
   white-space: nowrap;
   transition:
-    border-color 0.2s ease,
     background-color 0.2s ease,
     color 0.2s ease,
-    opacity 0.2s ease;
+    border-color 0.2s ease;
   cursor: pointer;
 }
 .pill:hover {
-  border-color: rgb(45 212 191 / 0.6);
-  background: rgb(45 212 191 / 0.1);
+  background: var(--color-ink);
+  color: var(--color-paper);
 }
 
 @utility pill-solid {
@@ -73,70 +71,23 @@ body {
   justify-content: center;
   gap: 0.5rem;
   border-radius: 9999px;
-  padding: 0.5rem 1.25rem;
+  padding: 0.625rem 1.5rem;
   background: var(--color-ink);
-  color: var(--color-abyss);
+  color: var(--color-paper);
   border: 1px solid transparent;
   white-space: nowrap;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: transform 0.2s ease;
   cursor: pointer;
 }
 .pill-solid:hover {
-  background: var(--color-aurora);
-}
-
-/* Gradient display text (the "loud." accent) */
-@utility text-aurora-gradient {
-  background: linear-gradient(100deg, #2dd4bf 10%, #8b7cf6 90%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Topic marquee on the landing page */
-@keyframes marquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee 30s linear infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
-  }
-}
-
-/* Blinking caret for the typewriter */
-@keyframes blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-}
-.caret {
-  display: inline-block;
-  width: 2px;
-  height: 1.05em;
-  background: var(--color-ink);
-  vertical-align: middle;
-  margin-left: 2px;
-  animation: blink 1s step-end infinite;
+  transform: scale(1.03);
 }
 
 /* Static orb fallback (reduced motion / no WebGL) */
 @keyframes orb-pulse {
   0%,
   100% {
-    opacity: 0.75;
+    opacity: 0.7;
   }
   50% {
     opacity: 1;
@@ -146,18 +97,15 @@ body {
   border-radius: 9999px;
   background: radial-gradient(
     circle at 38% 32%,
-    rgb(45 212 191 / 0.9),
-    rgb(139 124 246 / 0.55) 55%,
-    rgb(7 8 15 / 0) 72%
+    rgb(13 148 136 / 0.75),
+    rgb(109 40 217 / 0.5) 55%,
+    rgb(255 255 255 / 0) 72%
   );
   filter: blur(2px);
   animation: orb-pulse 5s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .static-orb {
-    animation: none;
-  }
-  .caret {
     animation: none;
   }
 }

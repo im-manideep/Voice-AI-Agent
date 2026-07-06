@@ -20,48 +20,49 @@ interface Look {
   brightness: number
 }
 
-// Distinct personality per voice state — colors stay in the aurora family.
-// Displacement is kept low: the orb should ripple, not turn into a blob.
+// Distinct personality per voice state. Colors are tuned for the WHITE page:
+// a dark glassy body with saturated teal/violet rims reads like polished
+// marble on paper. Displacement is kept low: ripple, not blob.
 const LOOKS: Record<VoiceStatus, Look> = {
   idle: {
-    colorA: new THREE.Color('#2dd4bf'),
-    colorB: new THREE.Color('#8b7cf6'),
+    colorA: new THREE.Color('#0d9488'),
+    colorB: new THREE.Color('#6d28d9'),
     displace: 0.05,
     gain: 0.3,
     speed: 0.14,
     noiseScale: 1.9,
-    brightness: 0.8,
+    brightness: 0.85,
   },
   listening: {
-    colorA: new THREE.Color('#8ffff0'), // cool white-teal — their voice
-    colorB: new THREE.Color('#2dd4bf'),
+    colorA: new THREE.Color('#14b8a6'), // vivid teal — their voice
+    colorB: new THREE.Color('#0f766e'),
     displace: 0.08,
     gain: 0.62,
     speed: 0.42,
     noiseScale: 2.5,
-    brightness: 1.2,
+    brightness: 1.25,
   },
   thinking: {
-    colorA: new THREE.Color('#a78bfa'),
-    colorB: new THREE.Color('#6d5bd0'),
+    colorA: new THREE.Color('#7c3aed'),
+    colorB: new THREE.Color('#4c1d95'),
     displace: 0.04,
     gain: 0.18,
     speed: 0.22,
     noiseScale: 1.5,
-    brightness: 0.9,
+    brightness: 0.95,
   },
   speaking: {
-    colorA: new THREE.Color('#c7b7ff'), // warmer violet — the coach's voice
-    colorB: new THREE.Color('#2dd4bf'),
+    colorA: new THREE.Color('#8b5cf6'), // warm violet — the coach's voice
+    colorB: new THREE.Color('#0d9488'),
     displace: 0.07,
     gain: 0.52,
     speed: 0.32,
     noiseScale: 2.2,
-    brightness: 1.3,
+    brightness: 1.35,
   },
 }
 
-const DEEP = new THREE.Color('#14102a') // the dark glassy body
+const DEEP = new THREE.Color('#1e1b4b') // the dark glassy body (indigo-950)
 
 export function Orb() {
   const material = useRef<THREE.ShaderMaterial>(null)
@@ -136,7 +137,8 @@ export function Orb() {
           uniforms={uniforms}
         />
       </mesh>
-      {/* Atmospheric halo — additive glow just past the silhouette. */}
+      {/* Atmospheric halo just past the silhouette. Normal (alpha) blending —
+          additive glow disappears against a white page. */}
       <mesh scale={1.22}>
         <sphereGeometry args={[1, 48, 48]} />
         <shaderMaterial
@@ -147,7 +149,6 @@ export function Orb() {
           transparent
           depthWrite={false}
           side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
         />
       </mesh>
     </group>

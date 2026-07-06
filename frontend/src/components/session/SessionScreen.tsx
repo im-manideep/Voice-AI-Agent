@@ -84,7 +84,7 @@ export function SessionScreen() {
         <OrbCanvas className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 opacity-60" />
         <div
           className="pointer-events-none absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse at center, rgb(7 8 15 / 0.55) 0%, rgb(7 8 15 / 0.2) 45%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse at center, rgb(255 255 255 / 0.6) 0%, rgb(255 255 255 / 0.25) 45%, transparent 70%)' }}
         />
 
         <div className="glass relative z-10 w-full max-w-lg p-8 text-center sm:p-10">
@@ -100,13 +100,19 @@ export function SessionScreen() {
 
           <div className="mb-8 flex flex-col gap-2.5 text-left">
             {YOU_CAN_SAY.map((s) => (
-              <div key={s.phrase} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/4 px-4 py-2.5">
+              <div key={s.phrase} className="flex items-center gap-3 rounded-xl border border-black/8 bg-black/3 px-4 py-2.5">
                 <s.icon className="h-4 w-4 shrink-0 text-aurora" aria-hidden />
                 <span className="w-32 shrink-0 text-[14px] text-ink">{s.phrase}</span>
                 <span className="text-[13px] text-mist">{s.meaning}</span>
               </div>
             ))}
           </div>
+
+          <p className="mb-7 text-[12px] leading-relaxed text-mist">
+            Topics it quizzes: chunking &amp; hybrid retrieval · reranking · RAG eval metrics ·
+            LLM-as-judge · LangGraph agents · MCP · provider abstraction · deployment cost guards
+            — each from level 1 (definitions) to level 5 (design tradeoffs).
+          </p>
 
           <button
             type="button"
@@ -138,7 +144,7 @@ export function SessionScreen() {
             {[1, 2, 3, 4, 5].map((n) => (
               <span
                 key={n}
-                className={`h-1.5 w-1.5 rounded-full ${n <= assignment.difficulty ? 'bg-aurora' : 'bg-white/15'}`}
+                className={`h-1.5 w-1.5 rounded-full ${n <= assignment.difficulty ? 'bg-aurora' : 'bg-black/15'}`}
               />
             ))}
           </span>
@@ -196,7 +202,7 @@ export function SessionScreen() {
               type="button"
               onClick={() => voiceLoop.setMode(m)}
               className={`rounded-full px-4 py-1.5 transition-colors duration-200 ${
-                mode === m ? 'bg-ink text-abyss' : 'text-mist'
+                mode === m ? 'bg-ink text-paper' : 'text-mist'
               }`}
             >
               {m === 'auto' ? 'Auto listen' : 'Push to talk'}
@@ -212,8 +218,8 @@ export function SessionScreen() {
             onPointerLeave={() => voiceLoop.pttUp()}
             className={`flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-150 ${
               status === 'listening'
-                ? 'border-aurora bg-aurora text-abyss'
-                : 'glass border-white/15 text-ink'
+                ? 'border-aurora bg-aurora text-paper'
+                : 'glass text-ink'
             }`}
             aria-label="Hold to talk (or hold Space)"
           >
@@ -225,7 +231,7 @@ export function SessionScreen() {
           type="button"
           onClick={() => voiceLoop.toggleMute()}
           className={`flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-150 ${
-            muted ? 'border-ember/60 bg-ember/15 text-ember' : 'glass border-white/15 text-ink'
+            muted ? 'border-ember/60 bg-ember/15 text-ember' : 'glass text-ink'
           }`}
           aria-label={muted ? 'Unmute microphone' : 'Mute microphone'}
           aria-pressed={muted}
