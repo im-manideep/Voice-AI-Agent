@@ -1,0 +1,12 @@
+{
+  "topics": [
+    { "id": "chunking_hybrid_retrieval", "label": "Chunking & Hybrid Retrieval" },
+    { "id": "reranking", "label": "Reranking" },
+    { "id": "rag_eval_metrics", "label": "RAG Evaluation Metrics" },
+    { "id": "llm_as_judge", "label": "LLM-as-Judge Pitfalls" },
+    { "id": "agent_orchestration", "label": "Agent Orchestration & LangGraph" },
+    { "id": "mcp_basics", "label": "MCP Basics" },
+    { "id": "provider_abstraction", "label": "Provider Abstraction" },
+    { "id": "deployment_cost_guards", "label": "Deployment & Cost Guards" }
+  ]
+}
