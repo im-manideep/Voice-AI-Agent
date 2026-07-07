@@ -1,5 +1,14 @@
 # Recall — a Voice AI Study Coach
 
+<img width="1906" height="892" alt="1" src="https://github.com/user-attachments/assets/94cc6b7d-410c-4e3b-8565-a5d5d8e9c9c3" />
+
+<img width="1776" height="865" alt="2" src="https://github.com/user-attachments/assets/efb62343-d4f8-4413-9dbc-2ce85a552a44" />
+
+<img width="1555" height="832" alt="3" src="https://github.com/user-attachments/assets/ade92970-46a1-4d98-a525-e232127037a0" />
+
+<img width="1631" height="742" alt="4" src="https://github.com/user-attachments/assets/70b4bf01-b91e-4910-9f30-65076d05de27" />
+
+
 Recall is a **voice-first AI study coach** for AI/LLM-engineering interview prep.
 You don't type anything: it asks a question out loud, listens to your spoken
 answer, grades it against real study notes, tells you exactly what you missed,
