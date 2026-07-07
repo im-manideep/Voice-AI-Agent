@@ -2,6 +2,10 @@
 .env
 backend/.env
 
+# local build-spec docs — not part of the published repo
+CLAUDE.md
+BUILD_PROMPT.md
+
 # runtime data
 backend/sessions.db
 backend/sessions.db-*
