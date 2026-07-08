@@ -147,14 +147,4 @@ frontend/
   src/components/           # landing / session / progress screens
 ```
 
-## Voice tiers
 
-| Stage | Tier 1 (free, active) | Tier 2 (paid, stubbed — off by default) |
-|---|---|---|
-| STT | Web Speech API (browser) | Streamed Whisper via `POST /stt` backend proxy |
-| TTS | speechSynthesis (browser) | Cartesia / ElevenLabs via `GET /tts` backend proxy |
-| LLM | Ollama `llama3.2:3b` (local) | OpenAI `gpt-4o-mini` |
-
-Switch with env vars in `backend/.env` (`VOICE_TIER`, `LLM_PROVIDER`) — no code
-changes. Note: the local 3B model grades strictly; `gpt-4o-mini` grades more
-fairly if you enable tier 2.
